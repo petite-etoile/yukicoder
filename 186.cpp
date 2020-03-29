@@ -138,17 +138,49 @@ ostream& operator<<(ostream& os, mint a){
     return os;
 }
 
-pair<mint,long long> 
+//拡張Euclidの互除法
+//ap + bq = gcd(a,b) となる(p,q)を求め、gcd(a,b)を返す
+long long exGCD(long long a, long long b, long long &p, long long &q){
+    if(b==0){
+        p=1; q= 0;
+        return a;
+    }
+    long long d = exGCD(b,a%b,q,p);
+    q -= a/b * p;
+    return d;
+}
+
+//中国の剰余定理
+//解がx≡r(mod. M)となるような r,Mをpairで返す
+pair<long long,long long> ChineseRem(const vector<long long>& b,const vector<long long>& m){
+    if(b.size()!=m.size()){
+        cerr << "bとmのサイズが違います" << bn;
+        return make_pair(-1,-1);
+    }
+    long long r = 0, M = 1;
+    long long p,q;
+    REP(i,b.size()){
+        long long d = exGCD(M,m[i],p,q);
+        if((b[i]-r)%d != 0) return make_pair(-1,-1); //解無し
+        long long tmp = (b[i] - r)/d * p % (m[i]/d);
+        r += M * tmp;
+        M *= m[i] / d;
+    }
+    r%=M;
+    while(r<0) r+=M;
+    return make_pair(r,M);
+}
 
 int main(){
     cin.tie(0);
     ios::sync_with_stdio(false);
-    int N;
-    cin >> N;
+    vector<int64> X(3),Y(3);
+    REP(i,3){
+        cin >> X[i] >> Y[i];
+    }
 
-    int ans=0;
-
-
-
+    int64 ans,M;
+    tie(ans,M) = ChineseRem(X,Y);
+    if(ans==0) ans+=M;
     cout << ans << endl;
 }

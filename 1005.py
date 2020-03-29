@@ -40,15 +40,25 @@ def I(): return int(input())
 def F(): return float(input())
 def ST(): return input().replace('\n', '')
 def main():
-    N,K=MI()
-    edge = [[]for _ in range(N)]
-    for _ in range(N-1):
-        a,b = MI_()
-        edge[a].append(b)
-        edge[b].append(a)
-    if K>N:
-        print(-1)
+    S=ST()
+    T=ST()
+    if len(T)==1:
+        if S.count(T):
+            print(-1)
+        else:
+            print(0)
         return
-    print(K-1)
+    
+    
+    ans = 0
+    N=len(S)
+    i = 0
+    while i<N:
+        if(S[i:i+len(T)] == T ):
+            ans+=1
+            i+=max(1,len(T)-1)
+        else:
+            i+=1
+    print(ans)
 if __name__ == '__main__':
     main()

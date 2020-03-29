@@ -8,13 +8,14 @@
 　　 |　 /
 　　 UU
 */
+#pragma region macro
 #include <bits/stdc++.h>
-typedef long long ll;
+typedef long long int64;
 using namespace std;
-using P = pair<ll, ll>;
+using P = pair<int64, int64>;
 typedef vector<int> vi;
 const int MOD = (int)1e9 + 7;
-const ll INF = 1LL << 62;
+const int64 INF = 1LL << 62;
 const int inf = 1<<30;
 template<class T>bool chmax(T &a, const T &b) { if (a<b) { a=b; return 1; } return 0; }
 template<class T>bool chmin(T &a, const T &b) { if (b<a) { a=b; return 1; } return 0; }
@@ -23,6 +24,7 @@ template<class T>bool chmin(T &a, const T &b) { if (b<a) { a=b; return 1; } retu
 #define ALL(obj) (obj).begin(), (obj).end() //コンテナじゃないと使えない!!
 #define debug(x) cerr << #x << ": " << x << "\n";
 #define mp make_pair
+#define bn '\n'
 template <typename T>
 ostream& operator<<(ostream& os, vector<T> &V){
     int N = V.size();
@@ -33,11 +35,11 @@ ostream& operator<<(ostream& os, vector<T> &V){
     os << "\n";
     return os;
 }
-template <typename T>
-ostream& operator<<(ostream& os, pair<T,T> const&P){
+template <typename T,typename S>
+ostream& operator<<(ostream& os, pair<T,S> const&P){
     os << "(";
     os << P.first;
-    os << ", ";
+    os << " , ";
     os << P.second;
     os << ")";
     return os;
@@ -63,6 +65,7 @@ ostream& operator<<(ostream& os, deque<T> &q){
     return os;
 }
 vector<pair<int,int>> dxdy = {mp(0,1),mp(1,0),mp(-1,0),mp(0,-1)};
+#pragma endregion
 //fixed<<setprecision(10)<<ans<<endl;
 
 template <typename T>
@@ -71,7 +74,7 @@ struct SegmentTree{
     ~~~~1-indexで実装~~~~
             1
         2       3
-      4   3   5    6
+      4   5   6    7
 
     ~~~~親・兄弟・子へのアクセスの仕方~~~~
                 i<<1
@@ -102,7 +105,7 @@ struct SegmentTree{
             data[N+i] = v[i]; //葉
         }
         for(int i=N-1; i; i--){
-            data[i] = func(data[i<<1|0], data[(i<<1)|1] ); //子をみて親を更新
+            data[i] = func(data[i<<1], data[(i<<1)+1] ); //子をみて親を更新
         }
     }
 
@@ -131,7 +134,6 @@ struct SegmentTree{
         return data[idx+N];
     }
 };
-
 template <typename T>
 ostream& operator<<(ostream& os, SegmentTree<T> &S){
     int N = S.data.size();
@@ -151,37 +153,54 @@ ostream& operator<<(ostream& os, SegmentTree<T> &S){
     }
     os << "\n";
     return os;
-}
+};
+
 
 int main(){
+    //imos法をsegment_treeで管理する
     cin.tie(0);
     ios::sync_with_stdio(false);
     int N,Q;
     cin >> N >> Q;
-    vector<pair<int,int>> A(N);
-    REP(i,N) cin >> A[i].first, A[i].second=i;
+    vector<int64> A(N);
+    REP(i,N) cin>>A[i];
+    vector<vector<int64>> queries;
 
-    SegmentTree<pair<int,int>> S(
-        [](pair<int,int> a,pair<int,int> b)->pair<int,int>{
-            return min(a,b);
-        }, mp(__INT_MAX__,-100)
+    SegmentTree<int64> S(
+        [](int64 a,int64 b)->int64{
+            return a+b;
+        }, 0
     );
-    S.build(A);
-    debug(S);
-    int c,l,r;
+    S.init(N+1);
+    
     REP(i,Q){
-        cin >> c >> l >> r;
-        l--;r--;
-        if(c==1){
-            auto left = S.get_val(l);
-            auto right = S.get_val(r);
-            left.second = r;
-            right.second = l;
+        char A;
+        int64 x,y;
+        cin >> A >> x >> y;
+        vector<int64> tmp = {0,--x,y};
+        if(A=='A') tmp[0]=1;
+        queries.push_back(tmp);
+    }   
 
-            S.set_val(l,right);
-            S.set_val(r,left);
+    reverse(ALL(queries));
+
+    vector<int64> ans(N,0);
+
+    REP(i,Q){
+        int64 A,x,y;
+        A=queries[i][0]; x=queries[i][1]; y=queries[i][2];
+        if(A){
+            int64 add_cnt = S.query(0,x+1);
+            ans[x] += add_cnt*y;
         }else{
-            cout << S.query(l,r+1).second + 1 << endl; //1-indexedになおす
+            S.set_val(x,S.get_val(x) + 1);
+            S.set_val(y,S.get_val(y) - 1);
         }
     }
+    REP(i,N){
+        int64 add_cnt = S.query(0,i+1);
+        ans[i] += add_cnt*A[i];
+    }
+
+    cout << ans;
 }

@@ -8,7 +8,22 @@
 　　 |　 /
 　　 UU
 */
-#include <bits/stdc++.h>
+#pragma region macro
+#include <iostream>
+#include<queue>
+#include<stack>
+#include<vector>
+#include<set>
+#include<map>
+#include<algorithm>
+#include<cstring>
+#include<string>
+#include<cassert>
+#include<cmath>
+#include<climits>
+#include<iomanip>
+#include<bitset>
+#include<unordered_map>
 typedef long long int64;
 using namespace std;
 using P = pair<int64, int64>;
@@ -23,8 +38,9 @@ template<class T>bool chmin(T &a, const T &b) { if (b<a) { a=b; return 1; } retu
 #define ALL(obj) (obj).begin(), (obj).end() //コンテナじゃないと使えない!!
 #define debug(x) cerr << #x << ": " << x << "\n";
 #define mp make_pair
+#define bn '\n'
 template <typename T>
-ostream& operator<<(ostream& os, vector<T> &V){
+ostream& operator<<(ostream& os, const vector<T> &V){
     int N = V.size();
     REP(i,N){
         os << V[i];
@@ -33,11 +49,13 @@ ostream& operator<<(ostream& os, vector<T> &V){
     os << "\n";
     return os;
 }
-template <typename T>
-ostream& operator<<(ostream& os, pair<T,T> const&P){
+template <typename T,typename S>
+ostream& operator<<(ostream& os, pair<T,S> const&P){
+    os << "(";
     os << P.first;
-    os << " ";
+    os << " , ";
     os << P.second;
+    os << ")";
     return os;
 }
 template <typename T>
@@ -61,6 +79,7 @@ ostream& operator<<(ostream& os, deque<T> &q){
     return os;
 }
 vector<pair<int,int>> dxdy = {mp(0,1),mp(1,0),mp(-1,0),mp(0,-1)};
+#pragma endregion
 //fixed<<setprecision(10)<<ans<<endl;
 
 
@@ -68,11 +87,9 @@ vector<pair<int,int>> dxdy = {mp(0,1),mp(1,0),mp(-1,0),mp(0,-1)};
 int main(){
     cin.tie(0);
     ios::sync_with_stdio(false);
-    random_device rd; 
-    mt19937_64 mt(rd());
-    int ans=0;
-
-
-
-    cout << ans << endl;
+    int64 N;
+    cin >> N;
+    int64 ans=N%4;
+    if(ans!=3)cout << "O" << bn;
+    else cout << "X" << bn;
 }

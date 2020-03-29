@@ -9,7 +9,22 @@
 　　 UU
 */
 #pragma region macro
-#include <bits/stdc++.h>
+#include <iostream>
+#include<queue>
+#include<stack>
+#include<vector>
+#include<set>
+#include<map>
+#include<algorithm>
+#include<cstring>
+#include<string>
+#include<cassert>
+#include<cmath>
+#include<climits>
+#include<iomanip>
+#include<bitset>
+#include<unordered_map>
+#include<tuple>
 typedef long long int64;
 using namespace std;
 using P = pair<int64, int64>;
@@ -26,7 +41,7 @@ template<class T>bool chmin(T &a, const T &b) { if (b<a) { a=b; return 1; } retu
 #define mp make_pair
 #define bn '\n'
 template <typename T>
-ostream& operator<<(ostream& os, vector<T> &V){
+ostream& operator<<(ostream& os, const vector<T> &V){
     int N = V.size();
     REP(i,N){
         os << V[i];
@@ -67,7 +82,6 @@ ostream& operator<<(ostream& os, deque<T> &q){
 vector<pair<int,int>> dxdy = {mp(0,1),mp(1,0),mp(-1,0),mp(0,-1)};
 #pragma endregion
 //fixed<<setprecision(10)<<ans<<endl;
-
 
 int64 pow(int a,int b,int mod){
     vector<bool> bit;
@@ -140,33 +154,58 @@ ostream& operator<<(ostream& os, mint a){
     return os;
 }
 
-//写像12相 n個をkグループに
-
-//区別できないボール/区別できない箱/制限なし 分割数
-mint ball_10(int n,int r){
-    vector<vector<mint>> P(n+1,vector<mint>(r+1,0));
-    REP(j,r+1) P[0][j]=1;
-    for(int i=1;i<=n;i++){
-        for(int j=1;j<=r;j++){
-            P[i][j] = P[i][j-1]; //0を含む
-            if (i-j>=0) P[i][j] += P[i-j][j]; //0を含まない
-        }
-    }
-    return P[n][r];
-}
-
 int main(){
     cin.tie(0);
     ios::sync_with_stdio(false);
-    int64 N,S,K;
-    cin >> N >> S >> K;
-    S -= N*K*(N-1)/2;
-    if (S<0) {
-        cout << 0 << bn;
-        return 0;
+    int N;
+    cin >> N;
+    vector<pair<bool,int>> BAN_limit;
+    int b,l;
+    int ban_cnt = 0;
+    REP(i,N){
+        cin >> b >> l;
+        if(b){ l--; ban_cnt++;}
+        BAN_limit.emplace_back(b,l);
     }
 
-    auto ans = ball_10(S,N);
+    sort(ALL(BAN_limit),[](pair<bool,int> a,pair<bool,int> b)->bool{
+        return a.second < b.second;
+    });
 
+    bool ban;
+    int limit;
+    vector<vector<mint>> DP(N+1,vector<mint>(N+1,0)); //iまで見て、制約を満たす数がj
+    DP[0][0] = 1;
+    REP(i,N){
+        tie(ban,limit) = BAN_limit[i];
+        REP(j,N){
+            //それが双対かどうかは別として条件を満たしている推移
+            DP[i+1][j+1] += DP[i][j] * max(0, limit-j);
+            
+            //双対のとき、条件を満たさない推移もカウントする
+            if(ban){
+                DP[i+1][j] += DP[i][j];
+            }
+        }
+    }
+    vector<mint> fact(N+1,1);
+    for(int i=1;i<=N;i++){
+        fact[i] = fact[i-1] * i;
+    }
+
+    REP(j,N){
+        DP[N][j] *= fact[N-j];
+    }
+
+    mint ans = 0;
+    REP(j,N+1){
+        if(N-j <= ban_cnt){
+            if((ban_cnt-(N-j))&1){
+                ans -= DP[N][j];
+            }else{
+                ans += DP[N][j];
+            }
+        }
+    }
     cout << ans << endl;
 }
